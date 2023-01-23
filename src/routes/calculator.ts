@@ -1,5 +1,6 @@
 import  { FastifyInstance } from "fastify"
 import { z } from "zod"
+import { calculateCompositeTax } from '../services/calculateService'
 
 export async function calculatorRoutes(fastify: FastifyInstance) {
   fastify.post('/calculator', async (request, reply) =>{
@@ -13,9 +14,19 @@ export async function calculatorRoutes(fastify: FastifyInstance) {
       period: z.number()
     })
 
-    const calculatorData = createCalculatorBody.parse(request.body)
 
-    return reply.status(201).send(calculatorData)
+    
+    const calculatorData = createCalculatorBody.parse(request.body)
+    const test = {
+      initialValue: calculatorData.initialInvestment,
+      contribution: calculatorData.monthlyContribution,
+      profitability: calculatorData.profitability,
+      years: calculatorData.period
+    }
+
+    const tax = calculateCompositeTax(test)
+
+    return reply.status(201).send(tax)
   })
 
 }
